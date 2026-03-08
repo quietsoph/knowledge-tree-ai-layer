@@ -1,0 +1,29 @@
+{
+	"name": "ai-layer",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"format": "biome check --write",
+		"check": "biome check"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.30.3",
+	"dependencies": {
+		"@ai-sdk/deepseek": "^2.0.24",
+		"ai": "^6.0.116",
+		"ai-sdk-ollama": "^3.8.0",
+		"dotenv": "^17.3.1",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.6",
+		"@types/node": "^25.3.5",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.18"
+	}
+}
