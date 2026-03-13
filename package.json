@@ -6,7 +6,10 @@
 	"type": "module",
 	"scripts": {
 		"format": "biome check --write",
-		"check": "biome check"
+		"check": "biome check",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"keywords": [],
 	"author": "",
@@ -14,9 +17,12 @@
 	"packageManager": "pnpm@10.30.3",
 	"dependencies": {
 		"@ai-sdk/deepseek": "^2.0.24",
+		"@ai-sdk/openai": "^3.0.41",
+		"@ai-sdk/xai": "^3.0.67",
 		"ai": "^6.0.116",
 		"ai-sdk-ollama": "^3.8.0",
 		"dotenv": "^17.3.1",
+		"pino": "^10.3.1",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
