@@ -34,6 +34,7 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 ## Rules
 
 **Do:**
+
 - All LLM calls go through `src/client/llm.ts` – never call the SDK directly
 - Validate all LLM output against Zod schemas
 - Version all schemas (include `version` field) and prompts (export versioned objects)
@@ -43,6 +44,7 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 - Compose operations only in pipelines – operations never call other operations
 
 **Don't:**
+
 - Skip schema validation on LLM responses
 - Mix concerns – keep prompts out of operations, operations out of pipelines
 - Over-retry – respect rate limits, use exponential backoff
@@ -50,15 +52,15 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 
 ## File Placement
 
-| New code for...   | Put it in...          |
-| ------------------ | --------------------- |
-| LLM wrapper/retry  | `src/client/`         |
-| Data shapes (Zod)  | `src/schemas/`        |
-| Prompt text        | `src/prompts/`        |
-| Single AI task     | `src/operations/`     |
-| Multi-step workflow | `src/pipelines/`      |
-| Pure helpers       | `src/utils/`          |
-| App config         | `src/config.ts`       |
+| New code for...     | Put it in...      |
+| ------------------- | ----------------- |
+| LLM wrapper/retry   | `src/client/`     |
+| Data shapes (Zod)   | `src/schemas/`    |
+| Prompt text         | `src/prompts/`    |
+| Single AI task      | `src/operations/` |
+| Multi-step workflow | `src/pipelines/`  |
+| Pure helpers        | `src/utils/`      |
+| App config          | `src/config.ts`   |
 
 ## After Making Changes
 
