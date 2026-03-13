@@ -1,4 +1,4 @@
-# Architecture Guide
+# Codebase Conventions
 
 Detailed patterns and conventions for the AI layer. See [CLAUDE.md](../CLAUDE.md) for rules and commands.
 
@@ -7,8 +7,7 @@ Detailed patterns and conventions for the AI layer. See [CLAUDE.md](../CLAUDE.md
 - **Separation of concerns** – each layer has a single responsibility.
 - **Idempotency** – operations produce the same output for the same input.
 - **Validation at boundaries** – all LLM outputs are validated against Zod schemas.
-- **Version everything** – schemas and prompts are versioned to allow safe evolution.
-- **Observability by default** – every AI call logs tokens, latency, and outcome; correlation IDs tie requests together.
+- **Observability by default** – every AI call logs tokens, latency, and outcome.
 - **Resilience** – retry with exponential backoff, model fallback chains, and circuit breakers.
 - **Human-in-the-loop** – pipelines expose a propose/execute pattern for review.
 
@@ -22,26 +21,22 @@ Detailed patterns and conventions for the AI layer. See [CLAUDE.md](../CLAUDE.md
   - Rate limit / 5xx: exponential backoff (up to 3 attempts).
   - Validation error: retry once with error appended.
   - Token limit: truncate prompt or fallback to cheaper model.
-- Emits structured logs (JSON) and OpenTelemetry spans (via `experimental_telemetry`).
+- Emits structured logs (JSON) and OpenTelemetry spans via `experimental_telemetry` (enabled by default — see [agentic-patterns.md](agentic-patterns.md) for telemetry principles).
 - Optionally caches responses for idempotent, cheap operations (e.g., routing).
-- Always includes `correlationId` in logs/spans.
-
-**Never call the SDK directly outside this module.**
 
 ## Schemas (`src/schemas/`)
 
 - Define all data shapes with Zod.
-- **Include a `version` field** in top-level schemas (e.g., `TreeSchema`).
+- **Include a `version` field** in top-level schemas — use `z.discriminatedUnion("version", ...)` to parse multiple versions.
 - Provide migration functions in `version.ts` to upgrade older versions.
-- Use discriminated unions for content blocks.
 - Keep schemas **strict** – no passthrough.
 
-**Example versioned schema:**
+**Example versioned schema (Zod v4):**
 
 ```ts
-const TreeSchemaV1 = z.object({ title: z.string(), ... });
+const TreeSchemaV1 = z.object({ version: z.literal(1), title: z.string() });
 const TreeSchemaV2 = TreeSchemaV1.extend({ version: z.literal(2), newField: z.string() });
-export const TreeSchema = z.union([TreeSchemaV1, TreeSchemaV2]).transform(...);
+export const TreeSchema = z.discriminatedUnion("version", [TreeSchemaV1, TreeSchemaV2]);
 ```
 
 ## Prompts (`src/prompts/`)
@@ -91,7 +86,7 @@ export async function analyze(chapter, notes, correlationId) {
 - Compose operations into **workflows**.
 - **Support streaming** for long operations – yield progress events.
 - Handle **partial failures** gracefully – continue processing other chapters if one fails, return a report.
-- Use correlation IDs generated at the API entry point and passed down.
+- Pass correlation IDs from the API entry point through each operation call.
 
 **Example streaming pattern (generator):**
 
@@ -111,35 +106,31 @@ export async function* proposeMerge(tree, notes, correlationId) {
 
 ## Utilities (`src/utils/`)
 
-Pure functions, no AI calls:
+Pure functions, no AI calls. Planned modules:
 
-- `content-preservation.ts` – compare old/new chapters (block count + optional semantic similarity).
-- `tree-diff.ts` – detailed diff of sections.
-- `correlation.ts` – generate and manage correlation IDs.
-- `streaming.ts` – helpers for SSE or WebSocket formatting.
-- `eval-harness.ts` – run prompts against labeled dataset and score outputs.
+- Content preservation – compare old/new chapters (block count + optional semantic similarity).
+- Tree diffing – detailed diff of sections.
+- Correlation IDs – generate and manage request-scoped IDs.
+- Streaming helpers – SSE or WebSocket formatting.
+- Eval harness – run prompts against labeled dataset and score outputs.
 
 ## Observability
 
-- **Logging** – every module logs structured JSON (use a logger like pino). Minimum fields: timestamp, level, message, correlationId, operation.
-- **Telemetry** – enable Vercel AI SDK's `experimental_telemetry` in the LLM client. Export spans via OTLP to a collector (e.g., SigNoz, LangSmith).
-- **Metrics** – expose Prometheus metrics (request count, error rate, latency, token usage) at a `/metrics` endpoint.
-- **Correlation IDs** – generated at the API gateway, propagated through all layers.
+- **Logging** – structured JSON via pino or similar. Minimum fields: timestamp, level, message, correlationId, operation.
+- **Telemetry** – `experimental_telemetry` is enabled by default in the LLM client. Export spans via OTLP.
+- **Metrics** – expose Prometheus metrics (request count, error rate, latency, token usage) at `/metrics`.
 
 ## Configuration (`src/config.ts`)
 
-Central, environment-aware configuration:
+Central, environment-aware configuration. Expected shape:
 
 ```ts
 export const config = {
-  models: { default: 'claude-sonnet', fallbackChain: [...] },
-  retries: { maxAttempts: 3, backoffBaseMs: 1000 },
-  features: {
-    useNewAnalyzePrompt: process.env.FEATURE_NEW_ANALYZE === 'true',
-    enableStreaming: true,
-  },
-  thresholds: { contentPreservation: 1.0, chapterSplit: 8 },
-  telemetry: { enabled: true, exporter: 'otlp' },
+  models: { default: "...", fallbackChain: [...] },
+  retries: { maxAttempts: number, backoffBaseMs: number },
+  features: { [flagName: string]: boolean },
+  thresholds: { [metricName: string]: number },
+  telemetry: { enabled: boolean, exporter: string },
 };
 ```
 

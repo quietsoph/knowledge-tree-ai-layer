@@ -46,9 +46,8 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 **Don't:**
 
 - Skip schema validation on LLM responses
-- Mix concerns – keep prompts out of operations, operations out of pipelines
+- Mix concerns – keep prompt text in `src/prompts/`, composition logic in `src/pipelines/`
 - Over-retry – respect rate limits, use exponential backoff
-- Ignore versioning – schema changes break stored data without migrations
 
 ## File Placement
 
@@ -70,4 +69,4 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 
 ## Architecture
 
-See [`docs/architecture.md`](docs/architecture.md) for detailed patterns, code examples, and conventions.
+See [`docs/codebase-conventions.md`](docs/codebase-conventions.md) for codebase patterns and [`docs/agentic-patterns.md`](docs/agentic-patterns.md) for agentic design patterns.
