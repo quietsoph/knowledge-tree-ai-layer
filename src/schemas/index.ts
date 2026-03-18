@@ -53,7 +53,6 @@ export type {
 export {
 	RoutingItemSchema,
 	RoutingMapSchema,
-	RoutingMapSchemaV1,
 } from "./routing.js";
 export type {
 	Bridge,
