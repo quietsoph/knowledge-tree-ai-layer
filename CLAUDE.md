@@ -37,7 +37,7 @@ Layers: LLM Client → Schemas → Prompts → Operations → Pipelines, plus Ut
 
 - All LLM calls go through `src/client/llm.ts` – never call the SDK directly
 - Validate all LLM output against Zod schemas
-- Version all schemas (include `version` field) and prompts (export versioned objects)
+- Version schemas that may be persisted or deserialized across releases; transient operation I/O (e.g., merge plans, routing maps) does not require versioning. Version all prompts (export versioned objects)
 - Propagate correlation IDs through every layer
 - Use model registry + config – never hardcode model names
 - Keep operations idempotent and pure

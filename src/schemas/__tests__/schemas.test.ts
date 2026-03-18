@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
 	ContentBlockSchema,
+	GistMapSchema,
 	MergePlanSchema,
+	MergeResultSchema,
+	ReindexResultSchema,
 	RoutingMapSchema,
 	TreeIndexSchema,
 	TreeSchema,
@@ -326,7 +329,6 @@ describe("TreeIndexSchema", () => {
 describe("RoutingMapSchema", () => {
 	it("parses a valid routing map", () => {
 		const map = {
-			version: 1 as const,
 			items: [
 				{
 					note_cluster: "Notes about consensus algorithms",
@@ -343,5 +345,108 @@ describe("RoutingMapSchema", () => {
 		const result = RoutingMapSchema.parse(map);
 		expect(result.items).toHaveLength(2);
 		expect(result.items[0]?.target_chapters).toContain("coordination");
+	});
+});
+
+describe("MergeResultSchema", () => {
+	it("parses a valid result with sections and bridges", () => {
+		const result = MergeResultSchema.parse({
+			sections: [foundationsSection, coordinationSection],
+			bridges: [
+				{
+					fromSection: "foundations-cap",
+					toSection: "coordination-consensus",
+					text: "CAP constraints shape consensus.",
+				},
+			],
+		});
+		expect(result.sections).toHaveLength(2);
+		expect(result.bridges).toHaveLength(1);
+	});
+
+	it("rejects when a section is missing required id", () => {
+		const { id: _, ...noId } = foundationsSection;
+		expect(() =>
+			MergeResultSchema.parse({
+				sections: [noId],
+				bridges: [],
+			}),
+		).toThrow();
+	});
+});
+
+describe("ReindexResultSchema", () => {
+	it("parses a valid result with nested TreeIndex and split_recommendations", () => {
+		const result = ReindexResultSchema.parse({
+			version: 1 as const,
+			index: {
+				version: 1 as const,
+				title: "Distributed Systems",
+				structure: "chaptered" as const,
+				chapters: [
+					{
+						id: "foundations",
+						label: "Foundations",
+						color: "#4A90D9",
+						gist: "Core theorems",
+						sections: [
+							{
+								id: "sec-01",
+								num: "01",
+								label: "CAP Theorem",
+								gist: "Trade-offs",
+								method: "flow" as const,
+								blocks: 3,
+							},
+						],
+					},
+				],
+			},
+			split_recommendations: [
+				{
+					chapter_id: "foundations",
+					reason: "Too many blocks",
+					block_count: 25,
+				},
+			],
+		});
+		expect(result.index.title).toBe("Distributed Systems");
+		expect(result.split_recommendations).toHaveLength(1);
+	});
+
+	it("rejects when version is missing", () => {
+		expect(() =>
+			ReindexResultSchema.parse({
+				index: {
+					version: 1 as const,
+					title: "Test",
+					structure: "flat" as const,
+					sections: [],
+				},
+				split_recommendations: [],
+			}),
+		).toThrow();
+	});
+});
+
+describe("GistMapSchema", () => {
+	it("parses a valid gist map", () => {
+		const result = GistMapSchema.parse({
+			version: 1 as const,
+			gists: [
+				{ id: "sec-01", gist: "Overview of CAP theorem" },
+				{ id: "sec-02", gist: "Consensus protocols" },
+			],
+		});
+		expect(result.gists).toHaveLength(2);
+	});
+
+	it("rejects when a gist entry is missing id", () => {
+		expect(() =>
+			GistMapSchema.parse({
+				version: 1 as const,
+				gists: [{ gist: "Missing id field" }],
+			}),
+		).toThrow();
 	});
 });

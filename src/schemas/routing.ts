@@ -10,13 +10,8 @@ export const RoutingItemSchema = z.object({
 
 export type RoutingItem = z.infer<typeof RoutingItemSchema>;
 
-export const RoutingMapSchemaV1 = z.object({
-	version: z.literal(1),
+export const RoutingMapSchema = z.object({
 	items: z.array(RoutingItemSchema),
 });
-
-export const RoutingMapSchema = z.discriminatedUnion("version", [
-	RoutingMapSchemaV1,
-]);
 
 export type RoutingMap = z.infer<typeof RoutingMapSchema>;
