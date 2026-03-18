@@ -83,6 +83,14 @@ describe("structural contracts", () => {
 // --- Snapshot tests ---
 
 describe("snapshots", () => {
+	for (const { name, module } of registry) {
+		for (const [versionKey, version] of Object.entries(module)) {
+			it(`${name}.${versionKey}.system`, () => {
+				expect(version.system).toMatchSnapshot();
+			});
+		}
+	}
+
 	it("analyzePrompts.v1.userBuilder (without routingContext)", () => {
 		const result = analyzePrompts.v1.userBuilder(
 			'[{"id":"sec-01","label":"TCP Basics","method":"cornell"}]',

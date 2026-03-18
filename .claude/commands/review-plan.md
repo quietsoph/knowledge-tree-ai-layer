@@ -22,3 +22,13 @@ Review the proposed feature or refactor against this checklist. For each item, a
 - For each item, state what the current plan is (or "not yet decided") and whether it looks correct.
 - At the end, summarize any gaps or open questions that need resolving before implementation begins.
 - Reference `docs/agentic-patterns.md` for design patterns, `docs/codebase-conventions.md` for codebase conventions, and `CLAUDE.md` rules when assessing.
+
+## Rules
+
+**Do:**
+
+- Understand carefully the problem/ root to solve by asking whys.
+
+**Don't:**
+
+- Don't jump to implementation without carefully considering trade-offs
