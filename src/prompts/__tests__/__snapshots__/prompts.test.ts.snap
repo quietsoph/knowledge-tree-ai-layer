@@ -1,0 +1,61 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshots > analyzePrompts.v1.userBuilder (with routingContext) 1`] = `
+"Current Sections:
+[{"id":"sec-01","label":"TCP Basics","method":"cornell"}]
+
+New Notes:
+TCP uses a three-way handshake: SYN, SYN-ACK, ACK.
+
+Routing Context (focus on notes matching this):
+Focus on networking protocol handshakes
+
+Analyze the notes and produce a merge plan."
+`;
+
+exports[`snapshots > analyzePrompts.v1.userBuilder (without routingContext) 1`] = `
+"Current Sections:
+[{"id":"sec-01","label":"TCP Basics","method":"cornell"}]
+
+New Notes:
+TCP uses a three-way handshake: SYN, SYN-ACK, ACK.
+
+Analyze the notes and produce a merge plan."
+`;
+
+exports[`snapshots > initializePrompts.v1.userBuilder 1`] = `
+"Topic: Networking
+
+Raw Notes:
+TCP and UDP are transport layer protocols. TCP is reliable, UDP is fast.
+
+Transform these notes into a structured knowledge tree. Choose "flat" or "chaptered" structure based on how many distinct sub-topics the notes cover."
+`;
+
+exports[`snapshots > mergePrompts.v1.userBuilder 1`] = `
+"Current Sections (1 total — include all in output):
+[{"id":"sec-01","label":"TCP Basics","content":[]}]
+
+Current Bridges:
+[{"fromSection":"sec-01","toSection":"sec-02","text":"Flow"}]
+
+Approved Merge Plan:
+{"analysis":[{"action":"enrich_section","target_section":"sec-01"}],"structural_changes":{"new_sections":[],"renumbering_needed":false}}
+
+Apply all changes from the merge plan. Return ALL sections (unchanged + modified + new) and ALL bridges."
+`;
+
+exports[`snapshots > reindexPrompts.v1.userBuilder 1`] = `
+"Entries (1 total — produce exactly 1 gists):
+[{"id":"sec-01","type":"section","label":"CAP Theorem","content":"Trade-offs in distributed guarantees"}]"
+`;
+
+exports[`snapshots > routePrompts.v1.userBuilder 1`] = `
+"Tree Index (1 chapters):
+{"version":1,"title":"Distributed Systems","structure":"chaptered","chapters":[{"id":"ch-1","label":"Foundations","gist":"Core theorems"}]}
+
+New Notes:
+Raft is a consensus algorithm designed for understandability.
+
+Group these notes into clusters and route each to the appropriate chapter(s)."
+`;
